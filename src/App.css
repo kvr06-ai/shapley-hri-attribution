@@ -1,0 +1,325 @@
+/* Shapley Attribution Visualizer - Styles */
+
+/* Layout */
+.app {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #374151;
+}
+
+.app-header h1 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #F9FAFB;
+  margin: 0 0 0.25rem 0;
+}
+
+.app-header .subtitle {
+  color: #9CA3AF;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.app-main {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.5rem;
+  flex: 1;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* Panel Styles */
+.control-panel,
+.chart-panel,
+.insight-panel {
+  background: #1F2937;
+  border: 1px solid #374151;
+  border-radius: 12px;
+  padding: 1.25rem;
+}
+
+.control-panel h2,
+.chart-panel h2,
+.insight-panel h2 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F9FAFB;
+  margin: 0 0 0.75rem 0;
+}
+
+.panel-description {
+  font-size: 0.875rem;
+  color: #9CA3AF;
+  margin: 0 0 1rem 0;
+  line-height: 1.5;
+}
+
+/* Control Panel */
+.component-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.component-toggle {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  padding: 0.75rem;
+  background: #111827;
+  border-radius: 8px;
+  border: 1px solid #374151;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.component-toggle:hover {
+  border-color: #4B5563;
+  background: #1a2332;
+}
+
+.component-toggle input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  accent-color: #60A5FA;
+  cursor: pointer;
+}
+
+.toggle-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.toggle-label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #F9FAFB;
+}
+
+.toggle-description {
+  font-size: 0.75rem;
+  color: #6B7280;
+  line-height: 1.4;
+}
+
+.run-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: #2563EB;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.run-button:hover:not(:disabled) {
+  background: #1D4ED8;
+}
+
+.run-button:disabled {
+  background: #374151;
+  color: #6B7280;
+  cursor: not-allowed;
+}
+
+.hint-text {
+  font-size: 0.8rem;
+  color: #6B7280;
+  text-align: center;
+  margin: 0.5rem 0 0 0;
+}
+
+/* Chart Panels */
+.chart-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  background: #111827;
+  border-radius: 8px;
+  border: 1px dashed #374151;
+}
+
+.chart-placeholder p {
+  color: #6B7280;
+  font-size: 0.9rem;
+}
+
+.chart-stats {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
+  color: #9CA3AF;
+}
+
+.chart-stats strong {
+  color: #F9FAFB;
+}
+
+.chart-container {
+  background: #111827;
+  border-radius: 8px;
+  padding: 0.5rem;
+}
+
+.interaction-note {
+  color: #34D399;
+  font-size: 0.8rem;
+}
+
+/* Shapley Legend */
+.shapley-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #374151;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.85rem;
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.legend-label {
+  flex: 1;
+  color: #D1D5DB;
+}
+
+.legend-value {
+  color: #9CA3AF;
+  font-family: monospace;
+}
+
+/* Insight Panel */
+.insight-panel {
+  background: linear-gradient(135deg, #1F2937 0%, #111827 100%);
+  border-color: #4B5563;
+}
+
+.insight-text {
+  font-size: 0.9rem;
+  color: #D1D5DB;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.math-details {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #374151;
+}
+
+.math-details h3 {
+  font-size: 0.85rem;
+  color: #9CA3AF;
+  margin: 0 0 0.5rem 0;
+}
+
+.formula {
+  font-family: 'Times New Roman', serif;
+  font-size: 1.1rem;
+  color: #F9FAFB;
+  background: #111827;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.formula-explanation {
+  font-size: 0.8rem;
+  color: #6B7280;
+  margin: 0.5rem 0 0 0;
+  line-height: 1.5;
+}
+
+/* Footer */
+.app-footer {
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #374151;
+  font-size: 0.85rem;
+  color: #6B7280;
+  line-height: 1.6;
+}
+
+.app-footer p {
+  margin: 0 0 0.5rem 0;
+}
+
+.app-footer strong {
+  color: #9CA3AF;
+}
+
+.app-footer em {
+  color: #D1D5DB;
+  font-style: normal;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .app-main {
+    grid-template-columns: 1fr;
+  }
+
+  .left-column {
+    order: 1;
+  }
+
+  .right-column {
+    order: 2;
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 1rem;
+  }
+
+  .app-header h1 {
+    font-size: 1.4rem;
+  }
+
+  .chart-stats {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+}
