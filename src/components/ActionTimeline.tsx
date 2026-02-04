@@ -77,6 +77,7 @@ export function ActionTimeline({ actions, highlightDay }: ActionTimelineProps) {
                 border: '1px solid #374151',
                 borderRadius: '8px',
                 fontSize: '0.85rem',
+                color: '#F9FAFB',
               }}
               formatter={(value) => {
                 const numValue = typeof value === 'number' ? value : 0;

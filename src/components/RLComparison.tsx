@@ -66,6 +66,7 @@ export function RLComparison({ actions }: RLComparisonProps) {
                 border: '1px solid #374151',
                 borderRadius: '8px',
                 fontSize: '0.85rem',
+                color: '#F9FAFB',
               }}
               formatter={(value, name) => {
                 const numValue = typeof value === 'number' ? value : 0;
