@@ -1,16 +1,15 @@
 /**
- * Simulation Engine for Learner Skill Progression
+ * Simulation Engine for Social Robot Intervention
  *
- * This module simulates a learner progressing through a skill-building task
- * with configurable intervention components. The "ground truth" causal model
- * defines how each component (and their interactions) affect learning.
+ * Models a child with ASD progressing through social skills games
+ * (Story, Rocket, Train) with a social robot companion.
  *
- * Inspired by the PAIR Lab's adaptive tutoring games for children with ASD:
- * - Story game (emotion understanding)
- * - Rocket/House game (perspective-taking)
- * - Train game (sequencing)
+ * The "ground truth" causal model defines how each intervention component
+ * (and their interactions) affect social skill acquisition.
  *
- * Reference: Salomons et al., Science Robotics 2018
+ * Based on PAIR Lab research:
+ * - Salomons et al., Science Robotics 2018 (30-day in-home deployment)
+ * - Triadic interactions: Robot + Child + Caregiver
  */
 
 import type {
@@ -25,12 +24,8 @@ import type { ValueFunction } from './shapley';
 /**
  * Ground truth causal model defining component effects
  *
- * Base effects: Direct contribution of each component to learning rate
+ * Base effects: Direct contribution of each component to skill acquisition
  * Interaction effects: Synergistic effects when components are combined
- *
- * Key insight: Hints are most effective when difficulty is appropriate.
- * This models the real-world finding that scaffolding works best in the
- * "zone of proximal development" (Vygotsky).
  */
 export interface CausalModel {
   baseEffects: Record<ComponentId, number>;
@@ -41,35 +36,42 @@ export interface CausalModel {
 }
 
 /**
- * Default causal model based on HRI tutoring literature
+ * Default causal model for social robot ASD intervention
+ *
+ * Key insight from Salomons et al. 2018:
+ * "The impact of the robot cannot be measured independently from the game"
+ *
+ * This model captures potential interaction effects that would allow
+ * us to decompose the robot's contribution from other factors.
  *
  * Values calibrated to produce realistic learning curves where:
- * - Individual components provide modest gains (0.10-0.20)
- * - Key interactions (hints × difficulty) provide substantial boost
- * - Total gain with all components ≈ 0.8-1.0 skill units over 20 trials
+ * - Robot engagement alone provides moderate gains
+ * - Key interactions (robot × difficulty, robot × caregiver) show synergy
+ * - Total gain with all components ≈ 0.8-1.0 skill units over 30 sessions
  */
 export const DEFAULT_CAUSAL_MODEL: CausalModel = {
   baseEffects: {
-    adaptiveDifficulty: 0.18, // Keeps learner in ZPD
-    scaffoldedHints: 0.12, // Provides guidance when stuck
-    positiveReinforcement: 0.10, // Maintains engagement/motivation
-    personalizedContent: 0.08, // Better fit to learner interests
+    robotEngagement: 0.15, // Robot's social attention and encouragement
+    adaptiveDifficulty: 0.18, // BKT-driven task adjustment (25%/75% thresholds)
+    caregiverInvolvement: 0.10, // Parent participation in triadic interaction
+    gameScaffolding: 0.12, // Graduated hints within games
   },
   interactions: [
-    // Hints are much more effective when difficulty is appropriate
-    // (Can't help if task is too easy or too hard)
-    { components: ['scaffoldedHints', 'adaptiveDifficulty'], effect: 0.22 },
-    // Reinforcement amplifies the effect of successful hint-taking
-    { components: ['positiveReinforcement', 'scaffoldedHints'], effect: 0.08 },
-    // Personalized content makes adaptive difficulty more precise
-    { components: ['personalizedContent', 'adaptiveDifficulty'], effect: 0.06 },
+    // Robot engagement is most effective when difficulty is appropriate
+    // (Mirrors ZPD - robot support matters most at the learning edge)
+    { components: ['robotEngagement', 'adaptiveDifficulty'], effect: 0.20 },
+    // Triadic synergy: Robot + Caregiver together amplify each other
+    // (Child sees consistent social modeling from both)
+    { components: ['robotEngagement', 'caregiverInvolvement'], effect: 0.12 },
+    // Game scaffolding works better when difficulty is calibrated
+    { components: ['gameScaffolding', 'adaptiveDifficulty'], effect: 0.08 },
   ],
 };
 
 /**
  * Create a value function from a causal model
  *
- * The value function v(S) computes the expected learning gain for a
+ * The value function v(S) computes the expected skill gain for a
  * coalition S of active components. This is the characteristic function
  * in cooperative game theory.
  *
@@ -98,11 +100,11 @@ export function createValueFunction(model: CausalModel): ValueFunction {
 }
 
 /**
- * Run a simulation of learner skill progression
+ * Run a simulation of child skill progression
  *
  * @param config - Simulation configuration
  * @param model - Causal model (defaults to DEFAULT_CAUSAL_MODEL)
- * @returns Simulation result with trial-by-trial data
+ * @returns Simulation result with session-by-session data
  */
 export function runSimulation(
   config: SimulationConfig,
@@ -112,18 +114,17 @@ export function runSimulation(
   const valueFunction = createValueFunction(model);
   const coalition = new Set(activeComponents) as Coalition;
 
-  // Learning rate per trial based on active components
+  // Learning rate per session based on active components
   const learningRate = valueFunction(coalition) / numTrials;
 
   const trials: Trial[] = [];
   let currentSkill = initialSkill;
 
   for (let i = 0; i < numTrials; i++) {
-    // Probability of correct response based on current skill
-    // Using a logistic function to model skill-to-performance mapping
+    // Probability of successful skill demonstration based on current level
     const pCorrect = 1 / (1 + Math.exp(-2 * (currentSkill - 0.5)));
 
-    // Simulate trial outcome with some randomness
+    // Simulate session outcome with some variability
     const randomFactor = 0.15 * (Math.random() - 0.5);
     const correct = Math.random() < pCorrect + randomFactor;
 
@@ -134,9 +135,9 @@ export function runSimulation(
       activeComponents: [...activeComponents],
     });
 
-    // Update skill level (learning happens regardless of outcome, but faster with correct)
-    const trialGain = correct ? learningRate * 1.2 : learningRate * 0.8;
-    currentSkill = Math.min(1.0, currentSkill + trialGain);
+    // Update skill level
+    const sessionGain = correct ? learningRate * 1.2 : learningRate * 0.8;
+    currentSkill = Math.min(1.0, currentSkill + sessionGain);
   }
 
   return {
@@ -164,28 +165,31 @@ export function runAveragedSimulation(
     runSimulation(config, model)
   );
 
-  // Average skill levels at each trial
-  const avgTrials: Trial[] = config.activeComponents.length > 0
-    ? allResults[0].trials.map((_, trialIdx) => {
-        const avgSkill =
-          allResults.reduce((sum, r) => sum + r.trials[trialIdx].skillLevel, 0) /
-          numRuns;
-        const correctCount = allResults.filter(
-          (r) => r.trials[trialIdx].correct
-        ).length;
-        return {
-          trialNumber: trialIdx + 1,
-          skillLevel: avgSkill,
-          correct: correctCount > numRuns / 2,
-          activeComponents: config.activeComponents,
-        };
-      })
-    : Array.from({ length: config.numTrials }, (_, i) => ({
-        trialNumber: i + 1,
-        skillLevel: config.initialSkill,
-        correct: false,
-        activeComponents: [],
-      }));
+  // Average skill levels at each session
+  const avgTrials: Trial[] =
+    config.activeComponents.length > 0
+      ? allResults[0].trials.map((_, trialIdx) => {
+          const avgSkill =
+            allResults.reduce(
+              (sum, r) => sum + r.trials[trialIdx].skillLevel,
+              0
+            ) / numRuns;
+          const correctCount = allResults.filter(
+            (r) => r.trials[trialIdx].correct
+          ).length;
+          return {
+            trialNumber: trialIdx + 1,
+            skillLevel: avgSkill,
+            correct: correctCount > numRuns / 2,
+            activeComponents: config.activeComponents,
+          };
+        })
+      : Array.from({ length: config.numTrials }, (_, i) => ({
+          trialNumber: i + 1,
+          skillLevel: config.initialSkill,
+          correct: false,
+          activeComponents: [],
+        }));
 
   const avgFinalSkill =
     allResults.reduce((sum, r) => sum + r.finalSkill, 0) / numRuns;
@@ -199,7 +203,11 @@ export function runAveragedSimulation(
 }
 
 /**
- * Get a human-readable insight about the current attribution results
+ * Generate a human-readable insight about the attribution results
+ *
+ * Highlights key findings relevant to HRI research questions:
+ * - How much did the robot contribute vs. other factors?
+ * - What interaction effects are present?
  *
  * @param activeComponents - Currently active components
  * @param shapleyValues - Computed Shapley values
@@ -210,13 +218,13 @@ export function generateInsight(
   shapleyValues: Record<ComponentId, number>
 ): string {
   if (activeComponents.length === 0) {
-    return 'Enable intervention components to see how they contribute to learning gains.';
+    return 'Enable intervention components to see how they contribute to social skill gains. Try the robot + adaptive difficulty combination to see interaction effects.';
   }
 
   if (activeComponents.length === 1) {
     const comp = activeComponents[0];
     const value = shapleyValues[comp];
-    return `With only "${formatComponentName(comp)}" active, it accounts for 100% of the ${value.toFixed(2)} learning gain.`;
+    return `With only "${formatComponentName(comp)}" active, it accounts for 100% of the ${value.toFixed(2)} skill gain. Enable additional components to see interaction effects.`;
   }
 
   // Find the highest-contributing component
@@ -228,29 +236,51 @@ export function generateInsight(
   const total = sorted.reduce((sum, s) => sum + s.value, 0);
   const topPercent = ((top.value / total) * 100).toFixed(0);
 
-  // Check for the key interaction: hints + difficulty
-  const hasHints = activeComponents.includes('scaffoldedHints');
+  // Check for key HRI interactions
+  const hasRobot = activeComponents.includes('robotEngagement');
   const hasDifficulty = activeComponents.includes('adaptiveDifficulty');
+  const hasCaregiver = activeComponents.includes('caregiverInvolvement');
 
-  if (hasHints && hasDifficulty) {
-    const hintsValue = shapleyValues['scaffoldedHints'];
-    const hintsPercent = ((hintsValue / total) * 100).toFixed(0);
-    return `"${formatComponentName(top.component)}" contributes ${topPercent}% of learning gains. Note: "Scaffolded Hints" (${hintsPercent}%) is amplified by "Adaptive Difficulty" — hints are most effective when task difficulty is appropriate.`;
+  // Robot + Difficulty interaction
+  if (hasRobot && hasDifficulty) {
+    const robotValue = shapleyValues['robotEngagement'];
+    const robotPercent = ((robotValue / total) * 100).toFixed(0);
+
+    if (hasCaregiver) {
+      return `This triadic configuration shows strong synergy. "Robot Social Engagement" contributes ${robotPercent}% — amplified by both adaptive difficulty and caregiver involvement. This answers: "The robot accounts for ${robotPercent}% of the observed gains."`;
+    }
+
+    return `"${formatComponentName(top.component)}" contributes ${topPercent}% of skill gains. Note: Robot engagement (${robotPercent}%) is amplified when adaptive difficulty keeps the child in their zone of proximal development.`;
   }
 
-  if (hasHints && !hasDifficulty) {
-    return `"${formatComponentName(top.component)}" leads with ${topPercent}%. Try enabling "Adaptive Difficulty" to see how it amplifies the effect of hints.`;
+  // Robot + Caregiver (triadic) without difficulty
+  if (hasRobot && hasCaregiver && !hasDifficulty) {
+    const robotValue = shapleyValues['robotEngagement'];
+    const robotPercent = ((robotValue / total) * 100).toFixed(0);
+    return `Triadic interaction active: Robot (${robotPercent}%) and caregiver show synergy. Try adding "Adaptive Difficulty" to see the full intervention effect.`;
   }
 
-  return `"${formatComponentName(top.component)}" contributes ${topPercent}% of the total ${total.toFixed(2)} learning gain.`;
+  // Robot alone with other components
+  if (hasRobot) {
+    const robotValue = shapleyValues['robotEngagement'];
+    const robotPercent = ((robotValue / total) * 100).toFixed(0);
+    return `"Robot Social Engagement" contributes ${robotPercent}% of the total ${total.toFixed(2)} skill gain. This quantifies the robot's independent causal contribution.`;
+  }
+
+  // No robot - suggest adding it
+  if (!hasRobot) {
+    return `"${formatComponentName(top.component)}" leads with ${topPercent}%. Enable "Robot Social Engagement" to see how the robot's contribution compares to other factors.`;
+  }
+
+  return `"${formatComponentName(top.component)}" contributes ${topPercent}% of the total ${total.toFixed(2)} skill gain.`;
 }
 
 function formatComponentName(component: ComponentId): string {
   const names: Record<ComponentId, string> = {
+    robotEngagement: 'Robot Social Engagement',
     adaptiveDifficulty: 'Adaptive Difficulty',
-    scaffoldedHints: 'Scaffolded Hints',
-    positiveReinforcement: 'Positive Reinforcement',
-    personalizedContent: 'Personalized Content',
+    caregiverInvolvement: 'Caregiver Involvement',
+    gameScaffolding: 'Game Scaffolding',
   };
   return names[component];
 }

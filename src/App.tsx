@@ -25,13 +25,13 @@ import './App.css';
 
 function App() {
   const [activeComponents, setActiveComponents] = useState<ComponentId[]>([
+    'robotEngagement',
     'adaptiveDifficulty',
-    'scaffoldedHints',
   ]);
   const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
   const [shapleyResult, setShapleyResult] = useState<ShapleyResult | null>(null);
   const [insight, setInsight] = useState<string>(
-    'Enable intervention components and run a simulation to see how Shapley values decompose the learning gains.'
+    'Enable intervention components and run a simulation to see how Shapley values decompose the social skill gains. The key question: "How much did the robot contribute?"'
   );
   const [isRunning, setIsRunning] = useState(false);
 
@@ -76,7 +76,7 @@ function App() {
       <header className="app-header">
         <h1>Shapley Attribution Visualizer</h1>
         <p className="subtitle">
-          Causal Credit Assignment for Adaptive HRI Interventions
+          Causal Credit Assignment for Social Robot Interventions
         </p>
       </header>
 
@@ -102,13 +102,15 @@ function App() {
 
       <footer className="app-footer">
         <p>
-          <strong>Scientific Context:</strong> This demo addresses the attribution
-          gap identified in Salomons et al. (Science Robotics, 2018): "The impact
-          of the robot cannot be measured independently from the game."
+          <strong>Context:</strong> Social robot interventions for children with ASD
+          combine multiple components: robot engagement, adaptive difficulty (BKT),
+          caregiver involvement, and game scaffolding. Salomons et al. (2018) noted:
+          <em> "The impact of the robot cannot be measured independently from the game."</em>
         </p>
         <p>
-          Shapley values provide a principled way to decompose intervention effects,
-          answering: <em>"Which components drove the observed learning gains?"</em>
+          <strong>Solution:</strong> Shapley values decompose the total effect into
+          per-component causal contributions, answering: <em>"How much did the robot
+          contribute to the child's social skill gains?"</em>
         </p>
       </footer>
     </div>

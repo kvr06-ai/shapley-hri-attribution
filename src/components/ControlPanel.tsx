@@ -29,8 +29,8 @@ export function ControlPanel({
     <div className="control-panel">
       <h2>Intervention Components</h2>
       <p className="panel-description">
-        Toggle components to see how they contribute to learning gains.
-        The Shapley value decomposition shows each component's causal attribution.
+        Toggle components of the social robot ASD intervention.
+        Shapley values show each component's causal contribution to skill gains.
       </p>
 
       <div className="component-toggles">

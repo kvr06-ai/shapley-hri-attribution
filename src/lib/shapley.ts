@@ -103,10 +103,10 @@ export function computeShapleyValues(
   valueFunction: ValueFunction
 ): ShapleyResult {
   const values: Record<ComponentId, number> = {
+    robotEngagement: 0,
     adaptiveDifficulty: 0,
-    scaffoldedHints: 0,
-    positiveReinforcement: 0,
-    personalizedContent: 0,
+    caregiverInvolvement: 0,
+    gameScaffolding: 0,
   };
 
   // Compute Shapley value for each active component

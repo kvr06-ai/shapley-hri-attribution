@@ -26,10 +26,10 @@ interface ShapleyChartProps {
 
 // Color palette for components
 const COMPONENT_COLORS: Record<ComponentId, string> = {
+  robotEngagement: '#F472B6', // Pink - Robot is the star
   adaptiveDifficulty: '#60A5FA', // Blue
-  scaffoldedHints: '#34D399', // Green
-  positiveReinforcement: '#FBBF24', // Yellow
-  personalizedContent: '#A78BFA', // Purple
+  caregiverInvolvement: '#FBBF24', // Yellow
+  gameScaffolding: '#34D399', // Green
 };
 
 export function ShapleyChart({ result, activeComponents }: ShapleyChartProps) {
