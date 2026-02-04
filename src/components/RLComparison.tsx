@@ -68,6 +68,8 @@ export function RLComparison({ actions }: RLComparisonProps) {
                 fontSize: '0.85rem',
                 color: '#F9FAFB',
               }}
+              itemStyle={{ color: '#D1D5DB' }}
+              labelStyle={{ color: '#F9FAFB' }}
               formatter={(value, name) => {
                 const numValue = typeof value === 'number' ? value : 0;
                 return [`${(numValue * 100).toFixed(1)}%`, name];

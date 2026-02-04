@@ -79,6 +79,8 @@ export function ActionTimeline({ actions, highlightDay }: ActionTimelineProps) {
                 fontSize: '0.85rem',
                 color: '#F9FAFB',
               }}
+              itemStyle={{ color: '#34D399' }}
+              labelStyle={{ color: '#F9FAFB' }}
               formatter={(value) => {
                 const numValue = typeof value === 'number' ? value : 0;
                 return [`${(numValue * 100).toFixed(1)}% contribution`, 'Shapley Value'];
