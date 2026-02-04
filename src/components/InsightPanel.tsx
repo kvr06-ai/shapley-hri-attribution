@@ -1,36 +1,38 @@
 /**
  * Insight Panel Component
  *
- * Displays dynamic insights about the current attribution results.
- * Highlights key findings like interaction effects and dominant contributors.
+ * Displays the key takeaway for the selected scenario.
+ * This is the "so what?" that ties everything together.
  */
 
+import type { Scenario } from '../lib/types';
+
 interface InsightPanelProps {
-  insight: string;
-  showMathDetails?: boolean;
+  scenario: Scenario;
 }
 
-export function InsightPanel({ insight, showMathDetails = false }: InsightPanelProps) {
+export function InsightPanel({ scenario }: InsightPanelProps) {
   return (
     <div className="insight-panel">
       <h2>Key Insight</h2>
-      <p className="insight-text">{insight}</p>
+      <p className="insight-text">{scenario.insight}</p>
 
-      {showMathDetails && (
-        <div className="math-details">
-          <h3>Shapley Value Formula</h3>
-          <div className="formula">
-            φᵢ = Σ<sub>S⊆N\{`{i}`}</sub>{' '}
-            <span className="fraction">
-              <span className="numerator">|S|!(n-|S|-1)!</span>
-              <span className="denominator">n!</span>
-            </span>
-            × [v(S ∪ {`{i}`}) - v(S)]
-          </div>
-          <p className="formula-explanation">
-            The Shapley value φᵢ for component i is computed by averaging its
-            marginal contribution v(S ∪ {`{i}`}) - v(S) across all possible
-            coalitions S, weighted by the probability of that coalition forming.
+      {scenario.id === 'robotPlusAdaptive' && (
+        <div className="insight-highlight">
+          <span className="highlight-label">The interaction effect:</span>
+          <p>
+            Robot effectiveness <em>increases</em> when combined with skill-matched tasks.
+            Shapley captures this synergy. Equal-split misses it.
+          </p>
+        </div>
+      )}
+
+      {scenario.id === 'fullIntervention' && (
+        <div className="insight-highlight">
+          <span className="highlight-label">Clinical interpretation:</span>
+          <p>
+            "The robot accounted for <strong>36%</strong> of Johnny's improvement
+            in emotion recognition." — The signal needed to optimize interventions.
           </p>
         </div>
       )}
