@@ -1,41 +1,52 @@
 /**
- * Insight Panel Component
+ * Insight Panel Component (Action-Level)
  *
- * Displays the key takeaway for the selected scenario.
- * This is the "so what?" that ties everything together.
+ * Displays key insights from the Shapley analysis.
+ * Highlights the actions with surprising/important attributions.
  */
 
-import type { Scenario } from '../lib/types';
+import type { ActionInsight } from '../lib/types';
+import { ACTION_LABELS } from '../lib/types';
 
 interface InsightPanelProps {
-  scenario: Scenario;
+  insights: ActionInsight[];
+  onHighlightDay?: (day: number | undefined) => void;
 }
 
-export function InsightPanel({ scenario }: InsightPanelProps) {
+export function InsightPanel({ insights, onHighlightDay }: InsightPanelProps) {
   return (
     <div className="insight-panel">
-      <h2>Key Insight</h2>
-      <p className="insight-text">{scenario.insight}</p>
+      <h2>Key Findings</h2>
 
-      {scenario.id === 'robotPlusAdaptive' && (
-        <div className="insight-highlight">
-          <span className="highlight-label">The interaction effect:</span>
-          <p>
-            Robot effectiveness <em>increases</em> when combined with skill-matched tasks.
-            Shapley captures this synergy. Equal-split misses it.
-          </p>
+      {insights.map((insight) => (
+        <div
+          key={insight.day}
+          className={`insight-item ${insight.shapleyValue < 0 ? 'negative' : 'positive'}`}
+          onMouseEnter={() => onHighlightDay?.(insight.day)}
+          onMouseLeave={() => onHighlightDay?.(undefined)}
+        >
+          <div className="insight-header">
+            <span className="insight-day">Day {insight.day}</span>
+            <span className="insight-action">{ACTION_LABELS[insight.type]}</span>
+            <span
+              className={`insight-value ${insight.shapleyValue >= 0 ? 'positive' : 'negative'}`}
+            >
+              {insight.shapleyValue >= 0 ? '+' : ''}
+              {(insight.shapleyValue * 100).toFixed(0)}%
+            </span>
+          </div>
+          <p className="insight-explanation">{insight.explanation}</p>
         </div>
-      )}
+      ))}
 
-      {scenario.id === 'fullIntervention' && (
-        <div className="insight-highlight">
-          <span className="highlight-label">Clinical interpretation:</span>
-          <p>
-            "The robot accounted for <strong>36%</strong> of Johnny's improvement
-            in emotion recognition." — The signal needed to optimize interventions.
-          </p>
-        </div>
-      )}
+      <div className="insight-takeaway">
+        <span className="takeaway-label">The Takeaway</span>
+        <p>
+          Shapley attribution reveals that <strong>timing alone doesn't determine impact</strong>.
+          Early actions can be decisive, and recent actions can be harmful—patterns that
+          RL temporal decay methods systematically miss.
+        </p>
+      </div>
     </div>
   );
 }
